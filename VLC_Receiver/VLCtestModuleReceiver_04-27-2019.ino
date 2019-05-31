@@ -4,7 +4,7 @@
 #define SYMBOL_PERIOD 400   //Specify Symbol Period
 #define MESSAGE_LENGTH 10   //Specify Message Length  
 String data[180];           //Buffer used for error correcting
-int THRESHOLD = 93;         //Defined Receiver Threshold
+int THRESHOLD = 90;         //Defined Receiver Threshold
 String preambleCorrect="111111";  //Preamble Tracker
 
 //Initialize the Receiver
@@ -14,6 +14,11 @@ bool onMessageWhole=false;
 int msgCount=0;
 int rightCount=0;
 int totCount=0;
+char sub[8];
+
+//Initialize the array checker
+String checker[3];
+int num=0;
 
 //Initialize Message Buffer as String
 String finalMessage=""; 
@@ -61,6 +66,7 @@ void setup()
 void loop() 
 {
  //Wait For Interrupt
+
 }
 
 //Receiver Interrupt
@@ -68,6 +74,7 @@ void receive_half_bit(){
 
     
     int sample=analogRead(tpin);    //Read in Photodiode Value
+  //   Serial.println(sample); // threshold value
     digitalWriteFast(LED_BUILTIN, !digitalReadFast(LED_BUILTIN)); //Toggle Heartbeat
 
     ///Search for Preamble
@@ -116,18 +123,31 @@ void receive_half_bit(){
                     onMessageWhole=true;
                     msgCount=0;
                     }
-                  else if(onMessageWhole==true && msgCount<32){
+                  else if(onMessageWhole==true && msgCount<16){
                     finalMessage+= receiver.message.substring(1,9);
                     msgCount++;
                     }
 
-                  if(msgCount==32){ 
+                  if(msgCount==16){ 
                     //Serially transmit final message to device
-                      Serial.println(finalMessage);
+                   
                      
+                      num++;
+                      checker[num-1]=finalMessage;
+                      if(num==3){
+                         num =0;
+                        
+                          if(checker[0]==checker[1]&&checker[0]==checker[2])
+                          {
+                            charArray();
+                          }
+                          
+                        
+                      }
                     //reset variables
                     finalMessage="";
                     msgCount=0;
+                   
                     onMessageWhole=false;
                      }
 
@@ -162,5 +182,31 @@ void receive_half_bit(){
   
   
  }
+ void charArray()
+ {
 
+  char finalMessageArray [128]; // extra 1 one null character
+  finalMessage.toCharArray(finalMessageArray, 129);
+  
 
+  for(int k=0;k<128;k+=8)
+  {
+    extractElements(finalMessageArray,  k, k+8); // 0-8, 8,-16,16-24,24-32,32-40,40-48,48-56,
+    
+  
+    Serial.write(sub,8);
+    Serial.send_now();
+ //   Serial.println(sub); 
+    delay(1000);
+  }
+ }
+
+void extractElements(char src[], int n, int m)
+{
+  
+  for(int j=0;j<8;j++)
+  {
+    sub[j]=src[j+n];
+  }
+  
+}
