@@ -8,7 +8,7 @@
 #include "Arduino.h"
 
 
-#define FIFO_SIZE 660
+#define FIFO_SIZE 340
 //FiFO Size for 256 bit messages
 
 

@@ -16,30 +16,46 @@ int preambleCount=0;          //keeps track of preamble
 int messageCount=0;           
 unsigned long time1=0;
 String tempFinalMessage= "";
-
+String randomString ="";
+int randomNumber=0;
 
 
 void setup() 
 {  
-  
-  
+ // Serial.begin(115200);
+  //randomSeed(9600); // for starters
   transmitter.commBuff=FIFO();      //create transmit FIFO
+   randomSeed(analogRead(0));
    
    //edit 256 bit message here
-   message="10001000010100001000111001010110100101101100010010100000110010101010011011010000101011001101101010110010111000100110011011101001";
-   message+=message;
+     for(int x =0 ;x<127; x++){
+    randomNumber = random(0,2);
+    randomString.concat(randomNumber);
+   }
+
+   //check to see if preamble is in message
+    if(randomString.indexOf("10101010") >= 0)
+      {
+        //Serial.println("THROWING OUT");
+           randomString =""; 
+           for(int x =0 ;x<127; x++)
+           {
+              randomNumber = random(0,2);
+              randomString.concat(randomNumber);
+           }
+      }
    
     //add the extra one's and zeroes
-    
+    //Serial.println(randomString); 
    String final_message="1010101010"; //append 8-bit frame message preamble
 
  /*********This code constructs preambles for each frame, making them 10 bits***********/
    int indexOrig=0;
-    for(int i=0; i<32; i++){
+    for(int i=0; i<16; i++){
       final_message+=1;
       int indexfin=indexOrig+8;
       while(indexfin>indexOrig){
-        final_message+=message[indexOrig];
+        final_message+=randomString[indexOrig];
         indexOrig++;
         }
        final_message+=0;
@@ -64,18 +80,23 @@ void setup()
    myTimer.begin(emit_half_bit,SYMBOL_PERIOD);
 // Timer1.initialize(SYMBOL_PERIOD); //1200 bauds
   // Timer1.attachInterrupt(emit_half_bit); 
+ 
    sei();//allow interrupts
    tempFinalMessage = final_message;
+   //tempFinalMessage = "XXXXXX";
+   
    
 }
 
 void loop() 
 {
-
+//Serial.println(tempFinalMessage);
+//delay(1000);
 }
 
 /**********emit_half_bit is the ISR for the transmitter*********/
 void emit_half_bit(){
+   
   digitalWriteFast(LED_BUILTIN, !digitalReadFast(LED_BUILTIN));   //heartbeat
 
   //preamble send
