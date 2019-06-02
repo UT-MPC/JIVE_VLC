@@ -105,15 +105,15 @@ public class MainActivity extends AppCompatActivity {
         message_received.setText("No Decryption Key Received");
         display = (TextView) findViewById(R.id.textView1);
         editText = (EditText) findViewById(R.id.editText1);
-        Button sendButton = (Button) findViewById(R.id.buttonSend);         //button to type data
+        Button sendButton = (Button) findViewById(R.id.buttonSend);
         Encryption_Key = null;
         this.count = 0;
         sendButton.setOnClickListener(new View.OnClickListener() {          //wait for button to be pressed
             @Override
             public void onClick(View v) {
-                if (!editText.getText().toString().equals("")) {            //get the message
+                if (!editText.getText().toString().equals("")) {
                     String data = editText.getText().toString();
-                    if (usbService != null) { // if UsbService was correctly binded, Send data
+                    if (usbService != null) {                        // if UsbService was correctly binded, Send data
                         usbService.write(data.getBytes());
                     }
                 }
@@ -377,9 +377,9 @@ public class MainActivity extends AppCompatActivity {
 
                         public void onClick(View v) {
                             Log.d("Here", "In the click");
-                            Security.addProvider(new BouncyCastleProvider());
+                            Security.addProvider(new BouncyCastleProvider());               //using Bouncy Castle
                             EditText inputString = findViewById(R.id.message_input);
-                            String input = inputString.getText().toString();
+                            String input = inputString.getText().toString();                //get input string
 
                             Log.d("Input String", input);
                             TextView enText = findViewById(R.id.encrypted_message);
@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
                             String[] bigKey = new String[16];
                             int index = 0;
                             int base = 0;
-                            for (int x = 8; x <= 128; x += 8) { //parse this into byte strings
+                            for (int x = 8; x <= 128; x += 8) {             //parse this into byte strings
                                 bigKey[index] = finalEncrypt.substring(base, x);
                                 base += 8;
                                 index++;
