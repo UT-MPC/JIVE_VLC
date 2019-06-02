@@ -42,7 +42,7 @@ import static org.bouncycastle.pqc.math.linearalgebra.ByteUtils.fromHexString;
 
 public class MainActivity extends AppCompatActivity {
     public static TextView t;
-    String finalKey ="";//="01011000000010101000010001111010010010010101001001111011111111101110100010010001011100111110000000011010110101111001101000111110";
+    String finalKey ="";
 
     /*
      * Notifications from UsbService will be received here.
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
+                //statements to see that USB permission to Android is given
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
                     Toast.makeText(context, "USB Ready", Toast.LENGTH_SHORT).show();
                     break;
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private static final Object locker = new Object();
     private final ServiceConnection usbConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {          //service setup
             usbService = ((UsbService.UsbBinder) arg1).getService();
             usbService.setHandler(mHandler);
         }
@@ -95,13 +96,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        t = findViewById((R.id.encryption_received));
+        t = findViewById((R.id.encryption_received));       //setup layout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mHandler = new MyHandler(this);
         message_received = (TextView) findViewById(R.id.encryption_received);
-        message_received.setText("No Encryption Key Received");
+        message_received.setText("No Encryption Key Received");                     //wait for encryption to be received
 
         display = (TextView) findViewById(R.id.textView1);
         editText = (EditText) findViewById(R.id.editText1);
@@ -113,68 +114,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!editText.getText().toString().equals("")) {
                     String data = editText.getText().toString();
-                    if (usbService != null) { // if UsbService was correctly binded, Send data
+                    if (usbService != null) {                               // if UsbService was correctly binded, Send data
                         usbService.write(data.getBytes());
                     }
                 }
             }
         });
 
-      /*  box9600 = (CheckBox) findViewById(R.id.checkBox);
-        box9600.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(box9600.isChecked())
-                    box38400.setChecked(false);
-                else
-                    box38400.setChecked(true);
-            }
-        });
-
-       box38400 = (CheckBox) findViewById(R.id.checkBox2);
-        box38400.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(box38400.isChecked())
-                    box9600.setChecked(false);
-                else
-                    box9600.setChecked(true);
-            }
-        });*/
 
         Button baudrateButton = (Button) findViewById(R.id.buttonBaudrate);
         baudrateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if(box9600.isChecked())
-                usbService.keepBaudRate();
-                /*else
-                    usbService.changeBaudRate(38400);*/
+                usbService.keepBaudRate();                  //keep baud rate the same between receiver and transmitter
+
             }
         });
-
-                    /*
-                    if(buffer.toString().length()>0){
-                        mActivity.get().message_received.setText(buffer.toString().length());
-                    }}
-                    */
-                        /*
-                    fakeKey  = buffer;
-                    mActivity.get().display.append(buffer);
-
-                    if(mActivity.get().Encryption_Key==null && buffer!=null) {
-
-                       //mActivity.get().Encryption_Key = buffer;
-                        //int leng = buffer.toString().length();
-                     //  mActivity.get().message_received.setText(buffer);
-                       mActivity.get().Encryption_Key = buffer;
-                       //if(mActivity.get().Encryption_Key!=null)
-                       mActivity.get().message_received.setText(fakeKey);
-                  //    fakeKey = mActivity.get().Encryption_Key;
-                       //mActivity.get().message_received.setText(mActivity.get().Encryption_Key);
-                        //Toast.makeText(mActivity.get(), mActivity.get().Encryption_Key, Toast.LENGTH_LONG).show();
-
-                    }*/
 
 
     }
@@ -182,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        setFilters();  // Start listening notifications from UsbService
+        setFilters();                                               // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
     }
 
@@ -195,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
         if (!UsbService.SERVICE_CONNECTED) {
-            Intent startService = new Intent(this, service);
+            Intent startService = new Intent(this, service);        //start service for USB connection
             if (extras != null && !extras.isEmpty()) {
                 Set<String> keys = extras.keySet();
                 for (String key : keys) {
@@ -206,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             startService(startService);
         }
         Intent bindingIntent = new Intent(this, service);
-        bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);            //bind USB service
     }
 
     private void setFilters() {
@@ -227,15 +182,13 @@ public class MainActivity extends AppCompatActivity {
 
         public MyHandler(MainActivity activity) {
             mActivity = new WeakReference<>(activity);
-          //  mActivity.get().message_received.setText("HANDLEMESSAGE");
         }
 
         @Override
-
+        //handles data received through the Serial port
         public void handleMessage(Message msg) {
             TextView message_received=(TextView) findViewById(R.id.encryption_received);;
             TextView enText = findViewById(R.id.encrypted_message);
-         //   mActivity.get().message_received.setText("HANDLING MESSAGE");
             switch (msg.what) {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
@@ -250,44 +203,38 @@ public class MainActivity extends AppCompatActivity {
                 case UsbService.SYNC_READ:
 
                     //synchronized(locker){
-                        mActivity.get().buffer = (String) msg.obj;
-                        Log.d("MESSAGE OBJ", (String) msg.obj);
-                        finalKey+=mActivity.get().buffer;
-                       //mActivity.get().en.setText(mActivity.get().buffer);
+                    mActivity.get().buffer = (String) msg.obj;
+                    Log.d("MESSAGE OBJ", (String) msg.obj);
+                    finalKey+=mActivity.get().buffer;                           //concat the finalKey with the buffer
 
-                    if(finalKey.length()>128)
-                            finalKey = finalKey.substring(0,128);
-                            //finalKey ="01011000000010101000010001111010010010010101001001111011111111101110100010010001011100111110000000011010110101111001101000111110";
-                    //mActivity.get().display.setText(Integer.toString(finalKey.length()));
-                        mActivity.get().Encryption_Key=(String) msg.obj;
-                      //  mActivity.get().message_received.setText(Integer.toString(finalKey.length()));
-                        Log.d("myTag", mActivity.get().buffer);
-                        Log.d("Final Key", finalKey);
-                         System.out.println(mActivity.get().buffer.length());
+                    if(finalKey.length()>128)                                   //make sure the finalKey length is 128 bits
+                        finalKey = finalKey.substring(0,128);
 
-                            if(mActivity.get().count==0) {
-                               if(finalKey.length()>=5)
-                                    message_received.setText("Key Received");
+                    mActivity.get().Encryption_Key=(String) msg.obj;            //set the encryption key
+                    Log.d("myTag", mActivity.get().buffer);
+                    Log.d("Final Key", finalKey);
+                    System.out.println(mActivity.get().buffer.length());
 
-                                mActivity.get().count++;
+                    if(mActivity.get().count==0) {
+                        if(finalKey.length()>=120)
+                            message_received.setText("Key Received");           //notify when key is received
 
-                    //    }
+                        mActivity.get().count++;
+
+                        //    }
                     }
                     //if(finalKey)
                     char arr[] = new char [128];
 
                     String encrypt = "";
                     Log.d("Char array", arr.toString());
-                    //encrypt = new String(arr);
-                    //encrypt = "111111111";
+
                     Log.d("Final char encrypt seq", encrypt);
 
                     try{
                         if(finalKey.length()>128)
-                            finalKey = finalKey.substring(0,128);
-                        message_received.setText(Integer.toString(finalKey.length()));
+                            finalKey = finalKey.substring(0,128);               //key is 128bits
                         encrypt = encrypt.concat(finalKey);
-                        //  mActivity.get().message_received.setText(Integer.toString(encrypt.length()));
                     }
                     catch (Exception e){
                         message_received.setText("ERROR IN GETTING LENGTH!");
@@ -297,45 +244,36 @@ public class MainActivity extends AppCompatActivity {
 
                     Button encryptButton = (Button) findViewById(R.id.encrypt_button);
 
-                     String finalEncrypt = encrypt;
-                   // String finalEncrypt = "01011000000010101000010001111010010010010101001001111011111111101110100010010001011100111110000000011010110101111001101000111110";
+                    String finalEncrypt = encrypt;
                     Log.d("Final Encrypt Key", finalEncrypt);
-                    encryptButton.setOnClickListener(new View.OnClickListener() {
+                    encryptButton.setOnClickListener(new View.OnClickListener() {           //wait for the encryption button to be pressed
 
                         public void onClick(View v) {
                             Log.d("Here", "In the click");
-                            Security.addProvider(new BouncyCastleProvider());
+                            Security.addProvider(new BouncyCastleProvider());               //using Bouncy Castle provider
                             EditText inputString = findViewById(R.id.message_input);
                             String input = inputString.getText().toString();
-                            byte [] ig = fromHexString(input); // byte array of the encrypted message
+                            byte [] ig = fromHexString(input);                          // byte array of the encrypted message
                             Log.d("InputByte", ig.toString());
                             Log.d("Input String", input);
                             TextView enText = findViewById(R.id.encrypted_message);
-                            //  enText.setText(input);
                             byte[] keyBytes;
-                            //String encrypt = "10011001101111011001100110111101100110011011110110011001101111011001100110111101100110011011110110011001101111011001100110111101";
-                            // String encrypt =(String) msg.obj;
-                            //enText.setText(Encryption_Key.toString().length());
-                            //  if(Encryption_Key!=null && Encryption_Key.length()==128)
-                            // encrypt = message_received.getText().toString();
+
                             TextView encryptReceive = findViewById(R.id.encryption_received);
-                            //   encryptReceive.setText(Encryption_Key.length());
 
 
                             //TODO Change the encryption key to get it from USB through arduino
-                            //enText.setText(encrypt);
-                            //encrypt = "10011001101111011001100110111101100110011011110110011001101111011001100110111101100110011011110110011001101111011001100110111101";
                             String[] bigKey = new String[16];
                             int index = 0;
                             int base = 0;
                             byte [] inByte = input.getBytes();
-                            for (int x = 8; x <= 128; x += 8) { //parse this into byte strings
+                            for (int x = 8; x <= 128; x += 8) {                     //parse this into byte strings
                                 bigKey[index] = finalEncrypt.substring(base, x);
                                 base += 8;
                                 index++;
                             }
                             byte[] newKeyByte = new byte[16];
-                            for (int x = 0; x < bigKey.length; x++) { // split the byte into 2 4 bit messages and convert them to hex
+                            for (int x = 0; x < bigKey.length; x++) {               // split the byte into 2 4 bit messages and convert them to hex
                                 byte high, low;
                                 String stringHigh = bigKey[x].substring(0, 4);
                                 String stringLow = bigKey[x].substring(4, 8);
@@ -346,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
                                 ans += Integer.toHexString(low);
                                 high = (byte) (high << 4);
                                 int unsignedByte = 0x0ff & Integer.parseInt(ans, 16); // add the 2 messages together and in the array
-                                //  Log.d("byte", Integer.toString(unsignedByte));
                                 newKeyByte[x] = (byte) unsignedByte;
                                 Log.d("Byteind", Integer.toString(newKeyByte[x]));
                             } // end parsing
@@ -355,9 +292,10 @@ public class MainActivity extends AppCompatActivity {
                             SecretKeySpec key = new SecretKeySpec(keyBytes, "AES"); // using AES with the 128 bit key
                             Log.d("Secret Key", key.toString());
                             Log.d("KeyByte", keyBytes.toString());
-                            // SecretKeySpec key = new SecretKeySpec(keyBytes, "AES"); // using AES with the 128 bit key
-                            //  Log.d("Secret Key", key.toString());
+
                             Cipher cipher = null;
+
+                            //try-catch statements for exceptions
                             try {
                                 cipher = Cipher.getInstance("AES", "BC");
                             } catch (NoSuchAlgorithmException e) {
@@ -374,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                             Log.d("Cipher init ", cipher.toString());
-                            byte[] cipherText = new byte[cipher.getOutputSize(inByte.length)];
+                            byte[] cipherText = new byte[cipher.getOutputSize(inByte.length)];      //set up size for encrypted message
                             int ctLength = 0;
                             try {
                                 ctLength = cipher.update(inByte, 0, inByte.length, cipherText, 0);
@@ -382,8 +320,8 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                             try {
-                                ctLength += cipher.doFinal(cipherText, ctLength); // actual code
-                            } catch (BadPaddingException e) {
+                                ctLength += cipher.doFinal(cipherText, ctLength);               //set the length of encrypted message
+                            } catch (BadPaddingException e) {                                   //statements for exceptions
                                 e.printStackTrace();
                             } catch (IllegalBlockSizeException e) {
                                 e.printStackTrace();
@@ -396,33 +334,11 @@ public class MainActivity extends AppCompatActivity {
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
-                            // g =new String(Base64.encode(cipherText));
 
-                            //g = new String (Base64.decode(g))
                             Log.d("Cipher Text", g);
                             Log.d("CLength",Integer.toString(cipherText.length));
                             Log.d("ctLength", Integer.toString(ctLength));
-                            //int ctLength = c
-                            // ipher.update(input, 0, input.length, cipherText, 0);
-                            // Log.d("Cipher Text", new String (cipherText));
-                            //  String plainT = new String(cipherText);
-                            enText.setText(g);
-                            //Log.d("Cipher Text length", Integer.toString(plainT.length()));
-                            //  plainT.length("PlainBytes", pla);
-                            //    System.exit(0);
-                            //    enText.setText(new String(plainText));
-                       /*     String practiceCipher = "";
-                            String bKey = finalKey.substring(0,4);
-                            char[] iByte = input.toCharArray();
-                            int h = 0x05 + bKey.charAt(2);
-                            for(int x =0; x<iByte.length; x++){
 
-                                iByte[x] -= h;
-                                practiceCipher+=iByte[x];
-                            }
-                          //  practiceCipher = iByte.toString();
-                            enText.setText(practiceCipher);*/
-                            // enText.setText(bKey);
                         }
                     });
 
@@ -433,4 +349,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
