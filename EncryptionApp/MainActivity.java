@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                             Security.addProvider(new BouncyCastleProvider());               //using Bouncy Castle provider
                             EditText inputString = findViewById(R.id.message_input);
                             String input = inputString.getText().toString();
-                            byte [] ig = fromHexString(input);                          // byte array of the encrypted message
+                            byte [] ig = fromHexString(input);                          // byte array of the input message
                             Log.d("InputByte", ig.toString());
                             Log.d("Input String", input);
                             TextView enText = findViewById(R.id.encrypted_message);
