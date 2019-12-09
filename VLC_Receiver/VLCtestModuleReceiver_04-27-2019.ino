@@ -1,10 +1,10 @@
 //CURRENT VERSION: 04/27/2019
 #include "VLCreceiver.h"
 #include <TimerOne.h>
-#define SYMBOL_PERIOD 400   //Specify Symbol Period
+#define SYMBOL_PERIOD 800   //Specify Symbol Period
 #define MESSAGE_LENGTH 10   //Specify Message Length  
 String data[180];           //Buffer used for error correcting
-int THRESHOLD = 90;         //Defined Receiver Threshold
+int THRESHOLD = 84;         //Defined Receiver Threshold
 String preambleCorrect="111111";  //Preamble Tracker
 
 //Initialize the Receiver
@@ -74,7 +74,7 @@ void receive_half_bit(){
 
     
     int sample=analogRead(tpin);    //Read in Photodiode Value
-  //   Serial.println(sample); // threshold value
+  // Serial.println(sample); // threshold value
     digitalWriteFast(LED_BUILTIN, !digitalReadFast(LED_BUILTIN)); //Toggle Heartbeat
 
     ///Search for Preamble
@@ -96,6 +96,7 @@ void receive_half_bit(){
     //Preamble Found, begin receiving and reconstructing packets
    else if(receiver.preambleReceived==true)
    {
+        // Serial.print("PRE REC");
 
          //Manchester Decode
         if(receiver.numSamples<1){
@@ -103,6 +104,7 @@ void receive_half_bit(){
               receiver.numSamples=1;
           }
         else{
+         // Serial.print("HERE\n");
               int diff=sample-receiver.prevSample;
               receiver.bitsReceived+=1;
               if(diff>0){
@@ -117,15 +119,17 @@ void receive_half_bit(){
 
                 
                 if(receiver.bitsReceived==MESSAGE_LENGTH){
-
+                     // Serial.print("HERE\n");
                   //detect message preamble
                   if(onMessageWhole==false && receiver.message=="1010101010"){   
                     onMessageWhole=true;
                     msgCount=0;
+                  //  Serial.print("HERE\n");
                     }
                   else if(onMessageWhole==true && msgCount<16){
                     finalMessage+= receiver.message.substring(1,9);
                     msgCount++;
+                  //  Serial.print("HERE\n");
                     }
 
                   if(msgCount==16){ 
@@ -133,17 +137,22 @@ void receive_half_bit(){
                    
                      
                       num++;
+                    //  Serial.print(num+"\n");
                       checker[num-1]=finalMessage;
                       if(num==3){
+                      // Serial.println(checker[0]);
+                     //   Serial.println(checker[1]);
                          num =0;
-                        
-                          if(checker[0]==checker[1]&&checker[0]==checker[2])
+                         // Serial.print("HERE");
+//                          if(checker[0]==checker[1]&&checker[0]==checker[2]) //&checker[0]==checker[3]&&checker[0]==checker[4]
                           {
+                           // Serial.println(checker[0]);
                             charArray();
                           }
                           
                         
                       }
+                        Serial.println(finalMessage);
                     //reset variables
                     finalMessage="";
                     msgCount=0;
@@ -180,7 +189,6 @@ void receive_half_bit(){
     
     }
   
-  
  }
  void charArray()
  {
@@ -196,9 +204,11 @@ void receive_half_bit(){
   
     Serial.write(sub,8);
     Serial.send_now();
- //   Serial.println(sub); 
+   // Serial.println(sub); 
     delay(1000);
   }
+  
+ //Serial.println(finalMessage);
  }
 
 void extractElements(char src[], int n, int m)
