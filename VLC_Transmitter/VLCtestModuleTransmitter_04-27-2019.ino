@@ -7,7 +7,7 @@
 int transmitterPin = 2;     //define GPIO pin for transmission
 VLCtransmitter transmitter = VLCtransmitter(transmitterPin);  //Declare and Initialize transmitter object
 IntervalTimer myTimer;    //create interval timer
-#define SYMBOL_PERIOD 400 /* Defined a symbol period in us*/
+#define SYMBOL_PERIOD 800 /* Defined a symbol period in us*/
 
 
 //Initialize transmitter variables
@@ -44,7 +44,7 @@ void setup()
               randomString.concat(randomNumber);
            }
       }
-   
+     randomString = "10010000101010001011001110111100010100010101011100010011000101001000100000001011101000101111100101110111011000011011000101011110";
     //add the extra one's and zeroes
     //Serial.println(randomString); 
    String final_message="1010101010"; //append 8-bit frame message preamble
